@@ -1,0 +1,514 @@
+<!DOCType html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Joker's Math Quiz</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div class="header">
+            <div class="topnav">
+                <div class="headtitle">
+					<img id="logo" src="joker's math.png">
+					<h1 id="top"><span class="title">Joker's Math Quiz</span></h1>
+				</div>
+            </div>     
+        </div>
+		
+		<div class="regArea">
+			<h1>Registration Area</h1>
+			<div class="form">
+				<!-- Task 1: Entry Form -->
+				<form id="playerForm" onsubmit="event.preventDefault(); Register()">
+				<table>
+					<tr>
+					<th><label for="firstName">First Name:</label></th>
+					<td><input type="text" id="firstName" required minlength="3"></td>
+					<!--Validates Last Name to a minimum of 3 characters-->
+
+					<th><label for="lastName">Last Name:</label></th>
+					<td><input type="text" id="lastName" required minlength="3"></td>
+					<!--Validates Last Name to a minimum of 3 characters-->
+					</tr>
+					<tr>
+					<th><label for="dob">Date of Birth:</label></th>
+					<td><input type="date" id="dob" required></td>
+
+					<th><label for="age">Age:</label></th>
+					<td><input type="text" id="age" disabled></td>
+					<!--Disables the input field for age-->
+					</tr>
+					
+					<tr>
+					<th><label for="gender">Gender:</label></th>
+					<td><select id="gender" required>
+						<option value="male">Male</option>
+						<option value="female">Female</option>
+					</select></td>
+
+					<th><label for="email">Email:</label></th>
+					<td><input type="email" id="email" required pattern=".*@gmail\.com"></td>
+					<!--Validates Email-->
+					</tr>
+					</table>
+					<!-- registration button -->
+					<input type="submit" value="Register" id="register">
+					
+					<!-- Task 5: Start Button -->
+					<button id="start" onclick="PlayGame()" disabled>Start</button>
+					
+					<!--Task 16: Find Percentage Score Button-->
+					<button id="percentageScoreButton" onclick="findPercentageScore()">Percentage Score</button>
+				</form>
+			</div>
+		</div>
+		<div style="height: 20px;"></div> 
+
+
+			
+
+			<!-- Play Area -->
+			<div id="playArea" style="display: none;">
+				<div>
+					<h1>Play Area</h1>
+					<p id="equation"></p>
+					<label for="answer">Your Answer:</label>
+					<input type="text" id="answer" disabled>
+
+					<!-- Add other necessary elements for the Play Area -->
+					
+					<!-- Task 7 CheckAnswer Button -->
+					<button id="checkAnswer" onclick="checkAnswer()" disabled>Check Answer</button>
+
+					<!-- Task 8 Next Button -->
+					<button id="next" onclick="PlayGame()" disabled>Next</button>
+					
+					<!--Task 11: Create the End button-->
+					<button id="end" disabled>End</button>
+				</div>
+			</div>
+			
+			
+			<!-- Statistics Display Area -->
+			<div id="showpercentage" style="display:none">
+				<!-- Player stats will be inserted here by the displayStatistics function -->
+			</div>
+			
+			
+			
+			<!--Task 12:Displays All Players-->
+			<div id="showallplayers"></div>
+			
+			
+			<!--Task 15:Show Charts-->
+			<div id="showcharts"></div>
+			
+			
+			<script>
+			
+				
+			// Function to calculate age based on date of birth
+			function calculateAge(dob) {
+				var today = new Date();
+				var birthDate = new Date(dob);
+				var age = today.getFullYear() - birthDate.getFullYear();
+				var monthDiff = today.getMonth() - birthDate.getMonth();
+
+				if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+					age--;
+				}
+
+				// Validate age
+				if (age >= 8 && age <= 12) {
+					return age;
+				} else {
+					alert("You must be 8-12 years old to participate.");
+					return null; // Return null to indicate an invalid age
+				}
+			}
+
+			// Task 2: Register Function
+			// Global array to store player registration data
+			var PlayerRegistrationData = [];
+
+			function Register() {
+				// Get values from the form
+				var firstName = document.getElementById("firstName").value;
+				var lastName = document.getElementById("lastName").value;
+				var dob = document.getElementById("dob").value;
+				var gender = document.getElementById("gender").value;
+				var email = document.getElementById("email").value;
+
+				// Perform JavaScript validations
+				if (firstName.length < 3 || lastName.length < 3) {
+					alert("First and Last Name must be at least 3 characters long.");
+					return;
+				}
+
+				// Call calculateAge to get the age
+				var age = calculateAge(dob);
+
+				// If age is null, registration is not valid
+				if (age === null) {
+					return;
+				}
+
+				// Validate email
+				if (!email.endsWith("@gmail.com")) {
+					alert("Invalid email. It must end with @gmail.com");
+					return;
+				}
+				
+				// Update the input field for age with the calculated value
+				document.getElementById("age").value = age;
+
+				// Create an object with the validated data
+				var playerData = {
+					firstName: firstName,
+					lastName: lastName,
+					dob: dob,
+					age: age,
+					gender: gender,
+					email: email,
+					gameData: []
+				};
+
+				// Append the data to the global array
+				PlayerRegistrationData.push(playerData);
+
+				// Disable the form and enable other buttons
+				disableForm();
+			}
+
+			// Function to disable the form and enable other buttons
+			function disableForm() {
+				// Disable form elements
+				document.getElementById("firstName").disabled = true;
+				document.getElementById("lastName").disabled = true;
+				document.getElementById("dob").disabled = true;
+				document.getElementById("gender").disabled = true;
+				document.getElementById("email").disabled = true;
+				
+				 // Disable the register button after it's clicked
+				document.getElementById("register").disabled = true;
+
+				// Enable "start" buttons
+				document.getElementById("start").disabled = false;
+				
+				// Disable the "End" button until the game starts
+				document.getElementById("end").disabled = true;
+			}
+
+
+			// Task 4: PlayGame Function
+			function PlayGame() 
+			{
+				//Hides Registration Area
+				document.querySelector('.regArea').style.display = 'none';
+				
+				// Enable the play area
+				document.getElementById("playArea").style.display = "flex";
+
+				// Generate random numbers for the equation
+				var num1 = Math.floor(Math.random() * 9) + 1;
+				var num2 = Math.floor(Math.random() * 5) + 1;
+
+				// Display the equation in the play area
+				document.getElementById("equation").innerHTML = num1 + " + " + num2;
+
+				// Enable the answer input field
+				document.getElementById("answer").disabled = false;
+
+				// Enable the accept button
+				document.getElementById("checkAnswer").disabled = false;
+
+				// Disable the start button
+				document.getElementById("start").disabled = true;
+				
+				// Enable the "End" button after the game starts
+				document.getElementById("end").disabled = false;
+				
+				// Disable the next button
+				document.getElementById('next').disabled = true;
+			}
+
+			//Task 6:CheckAnswer Function
+			// Function to check the player's answer
+			function checkAnswer() 
+			{
+				// Get the player's answer
+				var playerAnswer = document.getElementById("answer").value;
+
+				// Perform validation (add more validation)
+
+				if (!playerAnswer.match(/^\d+$/)) 
+				{
+					alert("Invalid answer. Please enter a valid number.");
+					return;
+				}
+
+				// Perform additional game logic if needed
+
+				// Example: Check if the answer is correct
+				var num1 = parseInt(document.getElementById("equation").innerHTML.split("+")[0].trim());
+				var num2 = parseInt(document.getElementById("equation").innerHTML.split("+")[1].trim());
+				var correctAnswer = num1 + num2;
+				
+				
+				// Create a game object to store game data
+				var gameData = {
+				  equation: num1 + " + " + num2,
+				  playerAnswer: parseInt(playerAnswer),
+				  correctAnswer:correctAnswer,
+				  isCorrect: parseInt(playerAnswer) === correctAnswer
+				};
+
+				// Push game data into the respective player's object in PlayerRegistrationData
+				PlayerRegistrationData[PlayerRegistrationData.length - 1].gameData.push(gameData);
+
+				// Display appropriate message based on the answer
+				if (gameData.isCorrect) {
+				  alert("Correct!");
+				} else {
+				  alert("Incorrect. Try again.");
+				}
+
+
+				// Clear the answer input field
+				document.getElementById("answer").value = "";
+
+				// Enable the next button for the next round
+				document.getElementById("next").disabled = false;
+				
+				// Disable the check answer button until the next round
+				document.getElementById("checkAnswer").disabled = true;
+				
+				// Call showAllStats to update and display all player statistics
+				showAllStats();
+			}
+			
+			// Task 9: Display Statistics Function
+				function displayStatistics() {
+					var showpercentage = document.getElementById("showpercentage");
+					showpercentage.value = ""; // Clear the content
+
+					PlayerRegistrationData.forEach(function(player) {
+						var totalGameCount = player.gameData.length;
+						var correctAnswerCount = player.gameData.filter(function(game) {
+							return game.isCorrect;
+						}).length;
+						var incorrectAnswerCount = totalGameCount - correctAnswerCount;
+
+						var percentage = (correctAnswerCount / totalGameCount) * 100 || 0;
+
+						showpercentage.value +=
+							"Name: " + player.firstName + " " + player.lastName + "\n" +
+							"Total Games: " + totalGameCount + "\n" +
+							"Correct Answers: " + correctAnswerCount + "\n" +
+							"Incorrect Equations: " + incorrectAnswerCount + "\n" +
+							"Percentage Score: " + percentage.toFixed(2) + "%\n\n";
+					});
+				}
+				
+				// Task 10: Calculate and display total number of questions, number of correct answers, and percentage score
+				function findPercentageScore() {
+				  var showpercentage = document.getElementById("showpercentage");
+				  showpercentage.innerHTML = ""; // Clear the content
+
+				  PlayerRegistrationData.forEach(function(player) {
+					var totalGameCount = player.gameData.length;
+					var correctAnswerCount = player.gameData.filter(function(game) {
+					  return game.isCorrect;
+					}).length;
+					var percentage = (correctAnswerCount / totalGameCount) * 100 || 0;
+
+					// Get current date
+					var currentDate = new Date().toLocaleDateString();
+
+					showpercentage.innerHTML +=
+					  "Name: " + player.firstName + " " + player.lastName + "<br>" +
+					  "Total Questions: " + totalGameCount + "<br>" +
+					  "Correct Answers: " + correctAnswerCount + "<br>" +
+					  "Percentage Score: " + percentage.toFixed(2) + "%<br><br>";
+				  });
+
+				  // Display the showpercentage area
+				  showpercentage.style.display = "flex";
+				}
+
+				
+				
+				//Add event listener for the End button
+				const endButton = document.getElementById("end");
+				endButton.addEventListener("click", function () {
+					// Call the findPercentageScore function
+					findPercentageScore();
+					
+					// Re-enables the registration area
+					document.querySelector('.regArea').style.display = 'block';
+
+					// Clear the form and enable inputs
+					var formElements = document.getElementById("playerForm").elements;
+					for (var i = 0; i < formElements.length; i++) {
+						// Exclude the "Register" button and maintain the age input field disabled
+						if (formElements[i].id !== "register" && formElements[i].id !== "age") {
+							formElements[i].value = "";
+							formElements[i].disabled = false;
+						} else if (formElements[i].id === "age") {
+							// Clear the initial value but keep the age field disabled
+							formElements[i].value = "";
+						}
+					}
+
+					// Enable the registration button after the "End" button is clicked
+					document.getElementById("register").disabled = false;
+					
+
+
+					// Disable all buttons except the Register button and enable Start button
+					var buttons = document.getElementsByTagName("button");
+					for (var i = 0; i < buttons.length; i++) {
+					  if (buttons[i].innerHTML !== "Register") {
+						buttons[i].disabled = true;
+					  } else {
+						buttons[i].disabled = false;
+					  }
+					}
+					
+					// Enable the percentage score button after the "End" button is clicked
+					document.getElementById("percentageScoreButton").disabled = false;
+					
+					// Clear the showpercentage display area
+					document.getElementById("showpercentage").innerHTML = "";
+
+					// Hide Play Area and Show Percentage area
+					document.getElementById("playArea").style.display = "none";
+					document.getElementById("showpercentage").style.display = "none";
+				  });
+
+				// Task 13: Function to Show Player Stats
+				function showAllStats() {
+					// Clear the content of the showallplayers display area
+					document.getElementById("showallplayers").innerHTML = "";
+
+					// Loop through each player in PlayerRegistrationData
+					PlayerRegistrationData.forEach(function (player) {
+						var playerStats =
+							"Name: " + player.firstName + " " + player.lastName + "\n" + "<br>" +
+							"Age: " + player.age + "<br>" +
+							"Questions and Answers: " + JSON.stringify(player.gameData) + "<br>" +
+							"Percentage Score: " + calculatePercentageScore(player.gameData).toFixed(2) + "%<br>" +
+							"-------------------------<br>";
+
+						// Append the playerStats to the showallplayers display area
+						document.getElementById("showallplayers").innerHTML += playerStats;
+					});
+				}
+
+				// Function to calculate the percentage score
+				function calculatePercentageScore(gameData) {
+					var totalGameCount = gameData.length;
+					var correctAnswerCount = gameData.filter(function (game) {
+						return game.isCorrect;
+					}).length;
+
+					return (correctAnswerCount / totalGameCount) * 100 || 0;
+				}
+				
+				
+				//Task 15: Display 2 Charts
+				function showfreq() {
+				  const genderCounts = { male: 0, female: 0 };
+				  const scoreCounts = {
+					"<50": 0,
+					"50-59": 0,
+					"60-69": 0,
+					"70-79": 0,
+					"80-89": 0,
+					"90-99": 0,
+					"100": 0,
+				  };
+				  const totalPlayers = PlayerRegistrationData.length;
+
+				  PlayerRegistrationData.forEach((playerData) => {
+					// Taking note of number of genders
+					if (playerData.gender === "male") {
+					  genderCounts.male += 1;
+					} else if (playerData.gender === "female") {
+					  genderCounts.female += 1;
+					}
+
+					// Count percentage scores
+					const score = calculatePercentageScore(playerData.gameData);
+					if (score < 50) {
+					  scoreCounts["<50"] += 1;
+					} else if (score >= 50 && score <= 59) {
+					  scoreCounts["50-59"] += 1;
+					} else if (score >= 60 && score <= 69) {
+					  scoreCounts["60-69"] += 1;
+					} else if (score >= 70 && score <= 79) {
+					  scoreCounts["70-79"] += 1;
+					} else if (score >= 80 && score <= 89) {
+					  scoreCounts["80-89"] += 1;
+					} else if (score >= 90 && score <= 99) {
+					  scoreCounts["90-99"] += 1;
+					} else {
+					  scoreCounts["100"] += 1;
+					}
+				  });
+
+				  // Calculate gender percentages
+				  const malePercentage = (genderCounts.male / totalPlayers) * 100;
+				  const femalePercentage = (genderCounts.female / totalPlayers) * 100;
+
+				  // Building a gender chart
+				  const genderChart = `
+					  <h3>Gender Chart</h3>
+					  <table>
+						<tr>
+						  <td>Male</td>
+						  <td><img src="../Assets/Images/thin_bar.jpg" width="${malePercentage}"></td>
+						</tr>
+						<tr>
+						  <td>Female</td>
+						  <td><img src="../Assets/Images/thin_bar.jpg" width="${femalePercentage}"></td>
+						</tr>
+					  </table>
+					`;
+
+				  // Building a score chart
+				  const scoreChart = `
+					  <h3>Score Chart</h3>
+					  <table>
+						${Object.keys(scoreCounts)
+						  .map((range) => {
+							const percentage = (scoreCounts[range] / totalPlayers) * 100;
+							return `
+							<tr>
+							  <td>${range}</td>
+							  <td><img src="../Assets/Images/thin_bar.jpg" width="${percentage}"></td>
+							</tr>
+						  `;
+						  })
+						  .join("")}
+					  </table>
+					`;
+
+				 
+				 // Display the charts
+				 const showcharts = document.getElementById("showcharts");
+				 showcharts.innerHTML = genderChart + scoreChart;
+				 
+				}
+
+
+				// Call showfreq to refresh every 5 seconds
+				setInterval(showfreq, 5000);
+
+
+				showCharts()
+
+			</script>		
+	</body>
+</html>

@@ -1,0 +1,127 @@
+html,body
+{
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden; 
+}
+
+body{
+	background-image:url("../Assets/Images/background.jpg");
+}
+
+@font-face {
+font-family: Brush Script MT;
+src: url(brush.ttf);
+}
+
+@font-face {
+font-family: Montez;
+src: url(montez.ttf);
+}
+
+@font-face {
+font-family: yesterday;
+src: url(Yesterday.ttf);
+}
+
+.headtitle{
+	margin:10px;
+	float:left;
+    display:flex;
+    width:100%;
+    align-items: flex-end;
+}
+
+
+.title{
+	font-family: yesterday;
+	color: white;
+	font-size: 200%;
+	text-shadow: 5px 5px black;
+}
+
+#logo{
+	width:180px;
+	height: auto;
+	border-radius:100%;
+	margin: 10px;
+	border:5px solid yellow;
+}
+
+.header{
+    display: block;
+    background-color: #ffffff;
+    width:100%;
+}
+
+.topnav{
+    display:flex;
+    justify-content: space-between;
+    width:100%;
+    height:100%;
+    padding-top: 10px;
+    padding-bottom:5px;
+	background-color: #4e38ba;
+}
+
+
+
+.form{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20vh; /* Adjust as needed */
+	margin-bottom: 50px;
+}
+
+h1{
+	text-align: center;
+	text-shadow: 1px 1px black;
+	color: purple;
+	
+}
+
+tr,td,th{
+	margin: 10px;
+	
+}
+
+button{
+	width: 150px;
+	height: 30px;
+}
+
+input{
+	width: 150px;
+	height: 30px;
+}
+
+#showallplayers{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+	margin-left: 20%;
+	margin-right: 20%;
+}
+
+#showpercentage{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+	margin-left: 20%;
+	margin-right: 20%;
+}
+
+#playArea {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  width: 100%; 
+  margin: 0;
+  padding: 0;
+}
